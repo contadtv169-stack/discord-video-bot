@@ -1,12 +1,14 @@
-name: Deploy Bot (VPS)
+name: CI - Validar Bot
 
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,35 +24,22 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Verificar token
+      - name: Verificar sintaxe
+        run: |
+          python -m py_compile main.py
+          python -m py_compile utils/downloader.py
+          python -m py_compile utils/shopee.py
+          python -m py_compile cogs/search.py
+          python -m py_compile cogs/download.py
+          python -m py_compile cogs/shopee.py
+
+      - name: Verificar token (secret)
         env:
           TOKEN: ${{ secrets.DISCORD_TOKEN }}
         run: |
           if [ -z "$TOKEN" ]; then
-            echo "❌ Crie o secret DISCORD_TOKEN em Settings > Secrets and variables > Actions"
-            exit 1
+            echo "⚠️  DISCORD_TOKEN não configurado em Settings > Secrets and variables > Actions"
+            echo "O bot não vai funcionar até configurar."
+          else
+            echo "✅ DISCORD_TOKEN configurado"
           fi
-          echo "✅ Token configurado"
-
-      - name: Deploy via SSH
-        uses: easingthemes/ssh-deploy@main
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-          ARGS: "-avz --delete --exclude='.git' --exclude='.github' --exclude='downloads' --exclude='bot.log'"
-          SOURCE: "."
-          REMOTE_HOST: ${{ secrets.VPS_HOST }}
-          REMOTE_USER: ${{ secrets.VPS_USER }}
-          TARGET: ${{ secrets.VPS_PATH }}
-
-      - name: Reiniciar bot no servidor
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd ${{ secrets.VPS_PATH }}
-            pip install -r requirements.txt -q
-            pgrep -f 'python main.py' && pkill -f 'python main.py'
-            nohup python main.py > bot.log 2>&1 &
-            echo "✅ Bot reiniciado"
