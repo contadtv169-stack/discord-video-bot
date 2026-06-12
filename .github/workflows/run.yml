@@ -1,0 +1,27 @@
+name: Run Bot (Self-Hosted Runner)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar dependências
+        run: |
+          pip install -r requirements.txt
+
+      - name: Parar bot anterior (se existir)
+        continue-on-error: true
+        run: |
+          pgrep -f 'python main.py' && pkill -f 'python main.py' || true
+
+      - name: Iniciar Bot
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: |
+          nohup python main.py > bot.log 2>&1 &
+          echo "✅ Bot iniciado (PID: $!)"

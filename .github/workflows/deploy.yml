@@ -1,0 +1,56 @@
+name: Deploy Bot (VPS)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verificar token
+        env:
+          TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "❌ Crie o secret DISCORD_TOKEN em Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          echo "✅ Token configurado"
+
+      - name: Deploy via SSH
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          ARGS: "-avz --delete --exclude='.git' --exclude='.github' --exclude='downloads' --exclude='bot.log'"
+          SOURCE: "."
+          REMOTE_HOST: ${{ secrets.VPS_HOST }}
+          REMOTE_USER: ${{ secrets.VPS_USER }}
+          TARGET: ${{ secrets.VPS_PATH }}
+
+      - name: Reiniciar bot no servidor
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ${{ secrets.VPS_PATH }}
+            pip install -r requirements.txt -q
+            pgrep -f 'python main.py' && pkill -f 'python main.py'
+            nohup python main.py > bot.log 2>&1 &
+            echo "✅ Bot reiniciado"
