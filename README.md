@@ -1,45 +1,36 @@
 # Discord Video Bot
 
-Bot para Discord que busca e baixa vídeos do **YouTube**, **TikTok** e **Kwai**.
+Bot para Discord que busca e baixa vídeos do **YouTube**, **TikTok**, **Kwai** e analisa produtos **Shopee**.
 
 ## Funcionalidades
 
-- `/buscar <termo>` - Busca vídeos nas 3 plataformas
-- `/baixar <url>` - Baixa o vídeo da URL e envia no chat
-- `!baixar <url>` - Comando por prefixo (alternativa)
+- `/buscar <termo>` - Busca vídeos no YouTube, TikTok e Kwai
+- `/baixar <url>` - Baixa o vídeo da URL e envia MP4 no chat
+- `/shopee <produto>` - Busca vídeos de produtos Shopee
+- `/produto <link>` - Analisa um link de produto Shopee
 
 ## Como usar localmente
 
-1. Crie um bot em https://discord.com/developers/applications
-2. Copie o token do bot
-3. Execute com a variável de ambiente:
-```
-set DISCORD_TOKEN=seu_token_aqui
-python main.py
-```
-Ou no PowerShell:
-```
+```powershell
 $env:DISCORD_TOKEN="seu_token_aqui"
 python main.py
 ```
 
-## Hospedagem no GitHub (GitHub Secrets)
+## Deploy grátis no Railway (24/7)
 
-1. Crie um repositório no GitHub e faça push dos arquivos
-2. No repositório vá em **Settings → Secrets and variables → Actions**
-3. Adicione um **New repository secret**:
-   - **Nome:** `DISCORD_TOKEN`
-   - **Segredo:** cole o token do seu bot
-4. Para rodar 24/7, conecte o repositório a serviços como:
-   - **Railway** (railway.app)
-   - **Render** (render.com)
-   - **Oracle Cloud** (gratuito)
-5. Nestes serviços, adicione `DISCORD_TOKEN` nas variáveis de ambiente (equivalente ao GitHub Secret)
+1. Crie uma conta em https://railway.app
+2. Clique em **New Project** → **Deploy from GitHub repo**
+3. Selecione o repositório `discord-video-bot`
+4. Vá em **Variables** e adicione:
+   - `DISCORD_TOKEN` = seu token do bot
+5. O deploy é automático! O bot fica online 24/7
 
 ## Comandos
 
 | Comando | Descrição |
 |---------|-----------|
-| `/buscar <query>` | Busca vídeos por termo |
-| `/baixar <url>` | Baixa vídeo da URL |
+| `/buscar <query>` | Busca vídeos no YouTube, TikTok e Kwai |
+| `/baixar <url>` | Baixa vídeo da URL e envia MP4 |
+| `/shopee <produto>` | Busca vídeos de produtos na Shopee |
+| `/produto <link>` | Analisa link de produto Shopee |
 | `!baixar <url>` | Alternativa por prefixo |
