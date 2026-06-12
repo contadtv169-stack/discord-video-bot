@@ -19,7 +19,7 @@ async def on_ready():
         print(f"Erro ao sincronizar comandos: {e}")
 
 async def load_cogs():
-    for cog in ["cogs.search", "cogs.download"]:
+    for cog in ["cogs.search", "cogs.download", "cogs.shopee"]:
         await bot.load_extension(cog)
 
 if __name__ == "__main__":
